@@ -1,0 +1,45 @@
+---
+- name: Control Cisco devices
+  hosts: ciscors
+  strategy: debug
+  connection: local
+  gather_facts: False
+
+  vars:
+    ciscoios: 'cisco_ios'
+    ciscoiosssh: 'cisco_ios_ssh'
+
+
+  tasks:
+  - name: Show interfaces in JSON
+    ntc_show_command:
+      connection: ssh
+      template_dir: "{{ playbook_dir }}/ntc-ansible/ntc-templates/templates/"
+      platform: "{{ ciscoios }}"
+      command: 'show interfaces'
+      host: "{{ inventory_hostname }}"
+      username: "{{ user }}"
+      password: "{{ pass }}"
+    register: result
+
+  - debug: var=result.response 
+  - local_action: copy content='{{ result.response }}' dest=/home/odl/show-interface/{{ inventory_hostname }}file
+  #- name: Bundle data in a new hash, but only if Serial is not blank.
+    #set_fact:
+       #interfaces: "{{ inventory|default([]) + [ {'hostname': ansible_net_hostname, 'ip': inventory_hostname, 'name': item.interface, 'Description': item.description, 'IP-Address': item.ip_address } ] }}"
+    #with_items: "{{ result.response }}"
+    #when: item.bandwidth != ''
+  #- name: Debug Check if you want
+    #debug: var=interfaces
+
+  # Write Headers for Cisco My Devices - hostname,IP,ProductID,serial
+  #- name: Write mydevices.csv
+    #run_once: true
+    #shell: touch mydevices.csv
+    #with_items: "{{ interfaces }}"
+  #- name: Write My Devices CSV File
+    #shell: 'echo {{ item.ip }},{{ item.hostname }},{{ item.name }},{{ item.IP-Address }},{{ item.description }}, >> {{ path_prefix }}mydevices.csv'
+    #with_items: "{{ interfaces }}"
+
+
+

@@ -1,0 +1,27 @@
+---
+- name: Control Cisco devices
+  hosts: ciscors
+  strategy: debug
+  connection: local
+  gather_facts: False
+
+  vars:
+    ciscoios: 'cisco_ios'
+    ciscoiosssh: 'cisco_ios_ssh'
+    localfile: 'images/ios.bin'
+    remotefile: 'c3745-adventerprisek9sna.bin'
+
+  tasks:
+  - name: cisco_ios_show_version in JSON
+    ntc_show_command:
+      connection: ssh
+      template_dir: "{{ playbook_dir }}/ntc-ansible/ntc-templates/templates/"
+      platform: "{{ ciscoios }}"
+      command: 'show version' 
+      host: "{{ inventory_hostname }}"
+      username: "{{ user }}"
+      password: "{{ pass }}"
+    register: result
+
+  - debug: var=result 
+

@@ -1,0 +1,29 @@
+---
+- name: Control Cisco devices
+  hosts: ciscors
+  strategy: debug
+  connection: local
+  gather_facts: False
+
+  vars:
+    ciscoios: 'cisco_ios'
+    ciscoiosssh: 'cisco_ios_ssh'
+    localfile: 'images/ios.bin'
+    remotefile: 'c3745-adventerprisek9sna.bin'
+
+  tasks:
+  - name: Show ios facts in JSON
+    ntc_get_facts:
+      connection: ssh
+      template_dir: "{{ playbook_dir }}/ntc-ansible/ntc-templates/templates/"
+      platform: "{{ ciscoios }}"
+      host: "{{ inventory_hostname }}"
+      username: "{{ user }}"
+      password: "{{ pass }}"
+    register: result
+
+  - debug: var=result.response
+  - local_action: copy content='{{ result.response }}' dest=/tmp/test
+
+
+
